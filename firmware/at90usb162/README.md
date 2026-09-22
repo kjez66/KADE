@@ -135,3 +135,21 @@ dfu-programmer at90usb162 launch
 - **No accelerometer nudge.** Nudge is three digital buttons only.
 
 Both are common in pinball cabinets and need supplementary hardware.
+
+## `prior-eeprom-backup.eep`
+
+The EEPROM contents read off this specific board before it was reflashed, kept
+because it cannot be regenerated. Its first 20 bytes were:
+
+```
+17 23 5 18 20 25 21 9 15 16 1 19 4 6 7 8 10 11 12 48
+```
+
+Which firmware's `library` those function numbers belong to is unknown -- the
+flash was erased before the EEPROM was read, so the previous firmware could not
+be identified. Treat this as a raw record, not a working mapping.
+
+Note that `dfu-programmer read` fails on a programmed chip ("Memory read
+error") because the Atmel bootloader's security bit blocks it; reads only
+succeed after an `erase`. That is why the flash could not be backed up but the
+EEPROM could.

@@ -30,8 +30,18 @@ family `minimus`. Every image was validated on extraction:
 
 The board's DFU bootloader enumerates as `USB\VID_03EB&PID_2FFA`.
 
-1. Bind a usable driver with [Zadig](https://zadig.akeo.ie/) — WinUSB or
-   libusb-win32 — to that device. The bundled 2009 driver will not work.
+1. Bind a driver with [Zadig](https://zadig.akeo.ie/). Choose **WinUSB** —
+   dfu-programmer 1.1.0 links libusb-1.0, whose Windows backend expects it.
+   The bundled 2009 driver will not work.
+
+   Verify before and after; this is the whole fix:
+
+   ```sh
+   dfu-programmer at90usb162 get bootloader-version
+   # before: "dfu-programmer: no device present."
+   # after:  reports the bootloader version
+   ```
+
 2. Flash with [dfu-programmer](https://dfu-programmer.github.io/):
 
 ```sh

@@ -1,0 +1,3 @@
+# The repo root ignores *.hex as AVR build output. These images are not build
+# output -- they are extracted from the loader database and committed on purpose.
+!*.hex

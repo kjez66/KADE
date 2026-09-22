@@ -1,0 +1,2 @@
+# Keep firmware images byte-exact; do not normalise line endings.
+*.hex -text

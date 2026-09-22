@@ -111,8 +111,8 @@ Consequences:
 
 - **Program the Minimus alone.** The PCB plays no part; it need not be attached.
 - **The brain is replaceable.** The daughterboard lifts out of its sockets.
-- **Mount it so HWB and RESET stay reachable**, or changing a mapping means
-  dismantling the cabinet.
+- **HWB and RESET are on screw terminals**, so a cabinet can carry its own
+  buttons for entering DFU mode without touching the daughterboard.
 
 Firmware sets all pins to input with internal pull-ups on (`DDRx=0x00`,
 `PORTx=0xFF`), so disconnected inputs read high and never produce phantom
@@ -121,6 +121,52 @@ presses.
 **Inputs:** 20, in two banks — `A1`–`A10` and `B1`–`B10`. The shift button has
 its own pin (`PIND & 0x80`) and is *not* one of the 20, so the shift layer is
 free capacity: up to 40 functions, with double-click shift-lock.
+
+## Wiring buttons
+
+![KADE terminal layout](open%20software/loader/sources/documents/kade-instructions-minimus/kade_pins.jpg)
+
+Twenty inputs run along the two long edges — `A1`–`A10` and `B1`–`B10` — with
+five more terminals on the bottom edge:
+
+| Terminal | Purpose |
+|---|---|
+| `GND` ×2 | button commons |
+| `HWB` | hold at reset to enter DFU mode |
+| `RST` | reset |
+| `V+` | 5 V out, for illuminated buttons |
+
+**Each button needs two wires: one to its input terminal, one to `GND`.** No +5 V
+is involved in a button circuit. The firmware enables internal pull-ups on every
+input (`DDRx=0x00`, `PORTx=0xFF`) and treats a pin as pressed when it reads
+*low*, so a button works by shorting its input to ground.
+
+Use the microswitch's **COM** and **NO** tabs. Wiring **NC** by mistake inverts
+the button — held constantly, released when pressed.
+
+### Daisy-chaining ground
+
+There are only two `GND` terminals for twenty buttons, so grounds are
+daisy-chained. This is standard arcade practice, and pre-made harnesses are sold
+for it:
+
+```
+A7 ──────── [NO] Left Flipper  [COM] ──┐
+A8 ──────── [NO] Right Flipper [COM] ──┤
+A1 ──────── [NO] Start         [COM] ──┤
+                     ...               │
+                               GND ────┘
+```
+
+One signal wire per button back to its own terminal; a single ground wire hops
+from button to button, and only the last one lands on `GND`.
+
+### Service buttons
+
+Run wires from `HWB` and `RST` to two small buttons somewhere reachable — inside
+the coin door is the usual spot. To re-enter DFU mode later: hold HWB, tap RESET,
+release HWB. Worth wiring while the cabinet is open, even if you never expect to
+reflash.
 
 ## Pinball cabinets
 

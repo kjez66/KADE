@@ -76,3 +76,52 @@ layouts. Query them with `tools/sqlq.ps1`.
 nothing to extract. 25 of the 26 listed `minimus` firmwares are here.
 
 Licensing follows the upstream project: GPLv3 (see `LICENSE.txt`).
+
+## Pinball cabinet setup (`kade-pin-custom`)
+
+`kade-pin` is marked `Removed` (deprecated) in the loader database;
+`kade-pin-custom` is the maintained pinball firmware and is the one to use. Its
+61-function library targets Visual Pinball and Future Pinball.
+
+The board exposes 20 inputs in two banks (`A1`-`A10`, `B1`-`B10`). The shift
+button sits on its own pin (`PIND & 0x80`) and is *not* one of the 20, so the
+shift layer is free capacity: up to 40 functions total, with double-click
+shift-lock.
+
+`kade-pin-custom-preset0.eep` in this directory is the stock preset 0 layout,
+generated with `tools/make-eep.ps1` and verified byte-for-byte against the
+database:
+
+| Terminal | Function | Terminal | Function |
+|---|---|---|---|
+| A1 | Start (1) | B1 | Left Nudge (Z) |
+| A2 | Coin (5) | B2 | Right Nudge (/) |
+| A3 | Up | B3 | Fwd Nudge (Space) |
+| A4 | Down | B4 | Left Upper Flipper (A) |
+| A5 | Left | B5 | Right Upper Flipper (') |
+| A6 | Right | B6 | Left Magnasave (L/Ctrl) |
+| A7 | Left Flipper (L/Shift) | B7 | Right Magnasave (R/Ctrl) |
+| A8 | Right Flipper (R/Shift) | B8 | View Backglass (Tab) |
+| A9 | Plunger (Enter) | B9 | Pause (Break) |
+| A10 | Exit (ESC) | B10 | Quit VP (Q) |
+
+The stock preset leaves the **shift layer entirely unassigned** (EEPROM
+`0x14`-`0x27` are all zero), so the shift button does nothing until functions are
+assigned there. Tilt (function 27) and the Williams coin-door keys (53-58) are
+the obvious candidates.
+
+Flash both images:
+
+```sh
+dfu-programmer at90usb162 erase
+dfu-programmer at90usb162 flash kade-pin-custom.hex
+dfu-programmer at90usb162 flash-eeprom kade-pin-custom-preset0.eep
+dfu-programmer at90usb162 launch
+```
+
+### What this firmware cannot do
+
+- **No analog plunger.** The plunger is a digital Enter keypress (function 18).
+- **No accelerometer nudge.** Nudge is three digital buttons only.
+
+Both are common in pinball cabinets and need supplementary hardware.
